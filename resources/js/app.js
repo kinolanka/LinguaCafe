@@ -221,6 +221,7 @@ const Home = require('./components/Home/Home.vue').default;
 const PatchNotes = require('./components/Home/PatchNotes.vue').default;
 const Attributions = require('./components/Home/Attributions.vue').default;
 const Library = require('./components/Library/Library.vue').default;
+const Recent = require('./components/Recent/Recent.vue').default;
 const TextReader = require('./components/TextReader/TextReader.vue').default;
 const Review = require('./components/Review/Review.vue').default;
 const Vocabulary = require('./components/Vocabulary/Vocabulary.vue').default;
@@ -240,6 +241,7 @@ const router = new VueRouter({
         { path: '/attributions', component: Attributions },
         { path: '/login', component: LoginForm },
         { path: '/books/:bookId?', component: Library },
+        { path: '/recent', component: Recent },
         { path: '/chapters/read/:chapterId', component: TextReader },
         { path: '/review/:practiceMode?/:bookId?/:chapterId?', component: Review },
         { path: '/vocabulary/search', component: Vocabulary },

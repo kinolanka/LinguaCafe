@@ -102,6 +102,7 @@ Route::group(['middleware' => ['auth', 'auth.session', 'web']], function () {
     Route::get('/attributions', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/patch-notes', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/books/{bookId?}', [App\Http\Controllers\HomeController::class, 'index']);
+    Route::get('/recent', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/book/create', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/chapters/{id}', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/chapters/read/{id}', [App\Http\Controllers\HomeController::class, 'index']);
@@ -188,6 +189,8 @@ Route::group(['middleware' => ['auth', 'auth.session', 'web']], function () {
     Route::post('/chapters/update', [App\Http\Controllers\ChapterController::class, 'updateChapter']);
     Route::post('/chapters/create', [App\Http\Controllers\ChapterController::class, 'createChapter']);
     Route::get('/chapters/retry-failed-chapters/{bookId}', [App\Http\Controllers\ChapterController::class, 'retryFailedChapters']);
+    Route::post('/chapters/record-open', [App\Http\Controllers\ChapterController::class, 'recordChapterOpen']);
+    Route::post('/chapters/recent', [App\Http\Controllers\ChapterController::class, 'getRecentChapters']);
 
     // library import
     Route::post('/import', [App\Http\Controllers\ImportController::class, 'import']);

@@ -134,6 +134,12 @@
                         bottomNav: true,
                     },
                     {
+                        name: 'Recent',
+                        url: '/recent',
+                        icon: 'mdi-history',
+                        bottomNav: false,
+                    },
+                    {
                         name: 'Vocabulary',
                         url: '/vocabulary/search',
                         icon: 'mdi-translate',
@@ -202,7 +208,7 @@
             this.$store.commit('shared/setUserAdmin', this.$props._isAdmin);
 
             if (this.$props._selectedLanguage == 'japanese') {
-                this.navigation.splice(3, 0, {
+                this.navigation.splice(4, 0, {
                     name: 'Kanji',
                     url: '/kanji/search',
                     icon: 'mdi-ideogram-cjk',

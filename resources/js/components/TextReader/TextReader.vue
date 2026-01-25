@@ -359,6 +359,9 @@
                 this.updateToolbarPosition();
                 this.vocabularySidebarTest();
                 this.$forceUpdate();
+
+                // Record chapter open after successful load
+                this.recordChapterOpen();
             });
         },
         beforeDestroy() {
@@ -369,6 +372,14 @@
         // this runs after the initial data
         // was downloaded with axios
         methods: {
+            recordChapterOpen() {
+                axios.post('/chapters/record-open', {
+                    chapterId: this.chapterId
+                }).catch((error) => {
+                    // Silent fail - not critical
+                    console.error('Failed to record chapter open:', error);
+                });
+            },
             vocabularySidebarTest() {
                 this.vocabularySidebarFits = window.innerWidth >= 960;
             },

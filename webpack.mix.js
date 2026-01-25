@@ -17,7 +17,16 @@ mix.js('resources/js/app.js', 'public/js')
     .browserSync({
         proxy: 'localhost',
         host: 'localhost',
-        open: 'external'
+        open: false,
+        files: [
+            'resources/js/**/*.vue',
+            'resources/js/**/*.js',
+            'resources/sass/**/*.scss'
+        ],
+        watchOptions: {
+            usePolling: true,
+            interval: 500
+        }
     })
     .version();
     

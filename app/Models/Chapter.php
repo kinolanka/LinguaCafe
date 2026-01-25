@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Book;
 use App\Models\Phrase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,17 @@ class Chapter extends Model
         'word_count',
         'language',
         'raw_text',
+        'opened_at',
     ];
+
+    protected $casts = [
+        'opened_at' => 'datetime',
+    ];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
 
     function getProcessedText() {
         return json_decode(gzuncompress($this->processed_text));
