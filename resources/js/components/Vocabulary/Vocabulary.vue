@@ -59,6 +59,7 @@
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 2}" @click="applyFilter('stage', 2)">New</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 1}" @click="applyFilter('stage', 1)">Ignored</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 0}" @click="applyFilter('stage', 0)">Learned</v-list-item>
+                                <v-list-item :class="{'v-list-item--active': filters.stage == -888}" @click="applyFilter('stage', -888)">Leveled</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -1}" @click="applyFilter('stage', -1)">1</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -2}" @click="applyFilter('stage', -2)">2</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -3}" @click="applyFilter('stage', -3)">3</v-list-item>
@@ -209,11 +210,28 @@
                         </v-list>
                     </v-menu>
                 </v-row>
+
+                <!-- Active filters display -->
+                <v-row id="active-filters" v-if="activeFilters.length > 0" class="mt-2">
+                    <v-chip
+                        v-for="filter in activeFilters"
+                        :key="filter.key"
+                        class="active-filter-chip ma-1"
+                        close
+                        small
+                        color="primary"
+                        text-color="white"
+                        @click:close="clearFilter(filter.key)"
+                    >
+                        <span class="filter-label">{{ filter.label }}:</span>
+                        <span class="filter-value">{{ filter.value }}</span>
+                    </v-chip>
+                </v-row>
             </v-container>
         </v-card>
 
         <!-- Vocabulary list -->
-        <v-simple-table id="vocabulary-list" class="py-0 no-hover border rounded-lg" dense>
+        <v-simple-table id="vocabulary-list" class="py-0 border rounded-lg" dense>
             <thead>
                 <tr>
                     <th class="word">Word</th>
@@ -251,7 +269,7 @@
                         <div class="highlighted-word">{{ word.stage * -1 }}</div>
                     </td>
                     <td class="stage px-1" :stage="word.stage" v-if="word.stage == 0">
-                        <div>0</div>
+                        <div class="learned-word"><v-icon small>mdi-check</v-icon></div>
                     </td>
                     <td class="stage px-1" :stage="word.stage" v-if="word.stage == 1">
                         <div>X</div>
@@ -338,16 +356,90 @@
         props: {
             language: String
         },
+        computed: {
+            activeFilters() {
+                const active = [];
+
+                // Stage/Level filter
+                if (this.filters.stage !== -999) {
+                    active.push({
+                        key: 'stage',
+                        label: 'Level',
+                        value: this.getStageName(this.filters.stage)
+                    });
+                }
+
+                // Book filter
+                if (this.filters.book !== -1 && this.filters.bookIndex !== -1 && this.books[this.filters.bookIndex]) {
+                    active.push({
+                        key: 'book',
+                        label: 'Book',
+                        value: this.books[this.filters.bookIndex].name
+                    });
+                }
+
+                // Chapter filter
+                if (this.filters.chapter !== -1 && this.filters.bookIndex !== -1 && this.books[this.filters.bookIndex]) {
+                    const book = this.books[this.filters.bookIndex];
+                    const chapter = book.chapters?.find(c => c.id === this.filters.chapter);
+                    if (chapter) {
+                        active.push({
+                            key: 'chapter',
+                            label: 'Chapter',
+                            value: chapter.name
+                        });
+                    }
+                }
+
+                // Translation filter
+                if (this.filters.translation !== 'any') {
+                    active.push({
+                        key: 'translation',
+                        label: 'Translation',
+                        value: this.filters.translation
+                    });
+                }
+
+                // Phrases filter
+                if (this.filters.phrases !== 'both') {
+                    active.push({
+                        key: 'phrases',
+                        label: 'Type',
+                        value: this.filters.phrases
+                    });
+                }
+
+                // Order by filter (only show if not default)
+                if (this.filters.orderBy !== 'words') {
+                    active.push({
+                        key: 'orderBy',
+                        label: 'Order',
+                        value: this.getOrderByName(this.filters.orderBy)
+                    });
+                }
+
+                // Text search
+                if (this.filters.text && this.filters.text.trim() !== '') {
+                    active.push({
+                        key: 'text',
+                        label: 'Search',
+                        value: '"' + this.filters.text + '"'
+                    });
+                }
+
+                return active;
+            }
+        },
         mounted() {
             this.loading = true;
             document.getElementById('app').addEventListener('scroll', () => { this.visiblePopup = ''; });
             document.getElementById('app').addEventListener('click', () => { this.visiblePopup = ''; });
             
             if (this.$route.params.text !== undefined) {
-                this.filters.text = (this.$route.params.text == 'anytext') ? '' : this.$route.params.text;
-                this.filters.stage = this.$route.params.stage;
-                this.filters.book = this.$route.params.book;
-                this.filters.chapter = this.$route.params.chapter;
+                this.filters.text = (this.$route.params.text === 'anytext') ? '' : this.$route.params.text;
+                this.filters.stage = parseInt(this.$route.params.stage);
+                this.filters.book = parseInt(this.$route.params.book);
+                this.filters.chapter = parseInt(this.$route.params.chapter);
                 this.filters.translation = this.$route.params.translation;
                 this.filters.phrases = this.$route.params.phrases;
                 this.filters.orderBy = this.$route.params.orderBy;
@@ -487,6 +579,54 @@
 
                 if(this.$router.currentRoute.path !== url) {
                     this.$router.push(url);
+                }
+            },
+            getStageName(stage) {
+                const stageNames = {
+                    2: 'New',
+                    1: 'Ignored',
+                    0: 'Learned',
+                    '-888': 'Leveled',
+                    '-1': '1',
+                    '-2': '2',
+                    '-3': '3',
+                    '-4': '4',
+                    '-5': '5',
+                    '-6': '6',
+                    '-7': '7'
+                };
+                return stageNames[stage] || stage.toString();
+            },
+            getOrderByName(orderBy) {
+                const orderNames = {
+                    'words': 'Word A-Z',
+                    'words desc': 'Word Z-A',
+                    'stage': 'Level Asc',
+                    'stage desc': 'Level Desc'
+                };
+                return orderNames[orderBy] || orderBy;
+            },
+            clearFilter(filterKey) {
+                const defaults = {
+                    stage: -999,
+                    book: -1,
+                    chapter: -1,
+                    translation: 'any',
+                    phrases: 'both',
+                    orderBy: 'words',
+                    text: ''
+                };
+
+                if (filterKey === 'book') {
+                    this.filters.chapter = -1;
+                    this.filters.bookIndex = -1;
+                }
+
+                if (filterKey === 'text') {
+                    this.filters.text = '';
+                    this.applyFilter('text');
+                } else {
+                    this.applyFilter(filterKey, defaults[filterKey]);
                 }
             }
         }
