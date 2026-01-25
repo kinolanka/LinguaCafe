@@ -280,17 +280,40 @@
                     
                     <td class="translation">{{ word.translation }}</td>
                     <td class="actions">
-                        <v-btn 
+                        <!-- Quick action: Mark as Learned -->
+                        <v-btn
+                            :style="{ visibility: word.stage === 0 ? 'hidden' : 'visible' }"
+                            :disabled="updatingWords.has(word.id)"
+                            icon
+                            small
+                            title="Mark as Learned"
+                            @click.stop="markAsLearned(word)"
+                        >
+                            <v-icon small color="success">mdi-check</v-icon>
+                        </v-btn>
+                        <!-- Quick action: Mark as Ignored -->
+                        <v-btn
+                            :style="{ visibility: word.stage === 1 ? 'hidden' : 'visible' }"
+                            :disabled="updatingWords.has(word.id)"
+                            icon
+                            small
+                            title="Mark as Ignored"
+                            @click.stop="markAsIgnored(word)"
+                        >
+                            <v-icon small>mdi-close</v-icon>
+                        </v-btn>
+                        <!-- Edit button -->
+                        <v-btn
                             v-if="word.type == 'word'"
-                            icon 
+                            icon
                             title="Edit"
                             @click="editItem(word.id, 'Word')"
                         >
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
-                        <v-btn 
+                        <v-btn
                             v-else
-                            icon 
+                            icon
                             title="Edit"
                             @click="editItem(word.id, 'Phrase')"
                         >
@@ -320,6 +343,7 @@
         data: function() {
             return {
                 loading: false,
+                updatingWords: new Set(),
                 filtersHidden: true,
                 visiblePopup: '',
                 paginationLimitBefore: 3,
@@ -517,6 +541,32 @@
                 this.vocabularyEditDialog.active = true;
                 this.vocabularyEditDialog.itemId = itemId;
                 this.vocabularyEditDialog.itemType = itemType;
+            },
+            setWordStatus(wordId, newStage, wordType) {
+                if (this.updatingWords.has(wordId)) return;
+                this.updatingWords.add(wordId);
+
+                const endpoint = wordType === 'phrase'
+                    ? '/vocabulary/phrases/update'
+                    : '/vocabulary/word/update';
+
+                axios.post(endpoint, {
+                    id: wordId,
+                    stage: newStage
+                }).then(() => {
+                    this.loadVocabularySearchPage();
+                }).catch((error) => {
+                    console.error('Failed to update word status:', error);
+                    this.loadVocabularySearchPage();
+                }).finally(() => {
+                    this.updatingWords.delete(wordId);
+                });
+            },
+            markAsLearned(word) {
+                this.setWordStatus(word.id, 0, word.type);
+            },
+            markAsIgnored(word) {
+                this.setWordStatus(word.id, 1, word.type);
             },
             toggleFilter(newItem) {
                 if (this.visiblePopup == newItem) {

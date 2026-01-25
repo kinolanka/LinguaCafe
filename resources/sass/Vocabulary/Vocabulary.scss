@@ -92,7 +92,7 @@ div.v-list.filter-popup {
         }
 
         .actions {
-            width: 120px;
+            width: 160px;
         }
 
         .word-with-reading {
@@ -132,6 +132,14 @@ div.v-list.filter-popup {
 
             .word-with-reading {
                 display: table-cell;
+            }
+
+            .actions {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 2px;
             }
         }
 
