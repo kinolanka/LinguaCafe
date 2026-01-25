@@ -59,6 +59,7 @@
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 2}" @click="applyFilter('stage', 2)">New</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 1}" @click="applyFilter('stage', 1)">Ignored</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == 0}" @click="applyFilter('stage', 0)">Learned</v-list-item>
+                                <v-list-item :class="{'v-list-item--active': filters.stage == -888}" @click="applyFilter('stage', -888)">Leveled</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -1}" @click="applyFilter('stage', -1)">1</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -2}" @click="applyFilter('stage', -2)">2</v-list-item>
                                 <v-list-item :class="{'v-list-item--active': filters.stage == -3}" @click="applyFilter('stage', -3)">3</v-list-item>
@@ -585,6 +586,7 @@
                     2: 'New',
                     1: 'Ignored',
                     0: 'Learned',
+                    '-888': 'Leveled',
                     '-1': '1',
                     '-2': '2',
                     '-3': '3',

@@ -627,14 +627,17 @@ class VocabularyService {
             $wordSearch->whereIn('word', $filteredWords);
         }
 
-        if ($stage !== -999) {
+        if ($stage === -888) {
+            // "Leveled" filter: show all words with SRS levels (stages -1 to -7)
+            $wordSearch = $wordSearch->where('stage', '<', 0);
+        } else if ($stage !== -999) {
             $wordSearch = $wordSearch->where('stage', $stage);
         }
 
         if ($translation == 'not empty') {
             $wordSearch = $wordSearch->where('translation', '<>', '');
         }
-        
+
         // search for phrases and apply filters
         $phraseSearch = Phrase
             ::select('id', DB::raw("'' AS base_word"), 'words as word', 'words_searchable', 'reading', DB::raw("'' AS base_word_reading"), 'stage', 'translation', DB::raw("-1 AS read_count"), DB::raw("-1 AS lookup_count"), 'added_to_srs', DB::raw("'phrase' AS type"))
@@ -652,7 +655,10 @@ class VocabularyService {
             $phraseSearch->whereIn('id', $filteredPhraseIds);
         }
 
-        if ($stage !== -999) {
+        if ($stage === -888) {
+            // "Leveled" filter: show all phrases with SRS levels (stages -1 to -7)
+            $phraseSearch = $phraseSearch->where('stage', '<', 0);
+        } else if ($stage !== -999) {
             $phraseSearch = $phraseSearch->where('stage', $stage);
         }
 
