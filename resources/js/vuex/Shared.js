@@ -14,9 +14,9 @@ export default {
             broadcaster: 'pusher',
             key: 'wjp2pou6ebgibtwccqsj',
             cluster: 'mt1',
-            forceTLS: true,
+            forceTLS: false,
             wsHost: window.location.hostname,
-            wsPort: 443,
+            wsPort: 6001,
             enabledTransports: ['ws', 'wss'],
         })
     }),
