@@ -100,7 +100,15 @@
             overflow-y: auto;
             overflow-x: visible !important;
         }
-        
+
+        #book-name {
+            min-height: 32px;
+            line-height: 32px;
+            color: var(--v-text-base);
+            opacity: 0.6;
+            margin-bottom: 4px;
+        }
+
         #chapter-name {
             min-height: 42px;
             line-height: 42px;
