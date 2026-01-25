@@ -1,0 +1,41 @@
+#recent {
+    .subheader {
+        padding: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        .subheader-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+    }
+
+    #recent-list {
+        .recent-item {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: background-color 0.2s;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.03);
+            }
+
+            &:last-child {
+                border-bottom: none;
+            }
+        }
+    }
+}
+
+// E-ink theme support
+#app main.eink #recent {
+    .subheader {
+        border-bottom-color: rgba(0, 0, 0, 0.2);
+    }
+
+    #recent-list .recent-item {
+        border-bottom-color: rgba(0, 0, 0, 0.1);
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+}

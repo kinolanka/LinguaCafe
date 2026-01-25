@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\ChapterService;
+use App\Models\Chapter;
+use Illuminate\Http\Request;
 
 // request classes
 use Illuminate\Support\Facades\Auth;
@@ -154,5 +156,48 @@ class ChapterController extends Controller {
         }
 
         return response()->json('Failed chapters has been added to the queue successfully.', 200);
+    }
+
+    public function recordChapterOpen(Request $request) {
+        $request->validate([
+            'chapterId' => 'required|integer',
+        ]);
+
+        $chapterId = $request->input('chapterId');
+        $userId = Auth::user()->id;
+
+        $chapter = Chapter::where('id', $chapterId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($chapter) {
+            $chapter->opened_at = now();
+            $chapter->save();
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['success' => false], 404);
+    }
+
+    public function getRecentChapters(Request $request) {
+        $request->validate([
+            'language' => 'required|string',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $userId = Auth::user()->id;
+        $selectedLanguage = $request->input('language');
+        $limit = $request->input('limit', 20);
+
+        $chapters = Chapter::select(['id', 'name', 'book_id', 'opened_at'])
+            ->with('book:id,name')
+            ->where('user_id', $userId)
+            ->where('language', $selectedLanguage)
+            ->whereNotNull('opened_at')
+            ->orderByDesc('opened_at')
+            ->limit($limit)
+            ->get();
+
+        return response()->json($chapters);
     }
 }
