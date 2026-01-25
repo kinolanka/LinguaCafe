@@ -59,6 +59,10 @@ div.v-list.filter-popup {
             height: 46px;
         }
 
+        tbody tr:hover {
+            background-color: rgba(128, 128, 128, 0.1);
+        }
+
         .word, .reading, .word-with-reading {
             width: 220px;
 
@@ -186,14 +190,16 @@ div.v-list.filter-popup {
 
 
 // style for e-ink theme
-#app main.eink #vocabulary #vocabulary-list .stage div {
-    &.highlighted-word {
-        background-color: black;
-        color: white;
+#app main.eink #vocabulary #vocabulary-list {
+    tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
-    &.new-word {
-        background-color: black;
-        color: white;
+    .stage div {
+        &.highlighted-word,
+        &.new-word {
+            background-color: black;
+            color: white;
+        }
     }
 }

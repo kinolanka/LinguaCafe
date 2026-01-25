@@ -231,7 +231,7 @@
         </v-card>
 
         <!-- Vocabulary list -->
-        <v-simple-table id="vocabulary-list" class="py-0 no-hover border rounded-lg" dense>
+        <v-simple-table id="vocabulary-list" class="py-0 border rounded-lg" dense>
             <thead>
                 <tr>
                     <th class="word">Word</th>
