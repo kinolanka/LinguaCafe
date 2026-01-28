@@ -68,8 +68,7 @@ class UserController extends Controller {
             'password' => $password,
         ])) {
             $request->session()->regenerate();
-            Auth::logoutOtherDevices($password);
- 
+
             return response()->json('User has been logged in successfully.', 200);
         } else {
             return response()->json('Login error.', 500);
