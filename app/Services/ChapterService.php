@@ -33,9 +33,10 @@ class ChapterService {
         }
 
         $chapters = Chapter
-            ::select(['id', 'name', 'read_count', 'word_count', 'unique_word_ids', 'processing_status'])
+            ::select(['id', 'name', 'read_count', 'word_count', 'unique_word_ids', 'processing_status', 'opened_at'])
             ->where('book_id', $bookId)
             ->where('user_id', $userId)
+            ->orderBy('id')
             ->get();
 
         $words = EncounteredWord
@@ -143,6 +144,7 @@ class ChapterService {
             ::select(['id', 'name', 'read_count', 'word_count', 'unique_word_ids', 'processing_status'])
             ->where('user_id', $userId)
             ->where('book_id', $book->id)
+            ->orderBy('id')
             ->get();
 
         $words = $chapter->getProcessedText();

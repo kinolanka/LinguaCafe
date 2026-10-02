@@ -51,9 +51,20 @@
             ]"
             :items="chapters"
             :loading="chaptersLoading"
-            :items-per-page="-1"
-            hide-default-footer
+            :page="page"
+            :items-per-page="itemsPerPage"
+            :footer-props="{ 'items-per-page-options': [25, 50, 100, -1] }"
+            :hide-default-footer="chapters.length <= 25"
+            @update:page="pageChanged"
+            @update:items-per-page="itemsPerPageChanged"
         >
+
+            <!-- Chapter name and reading status -->
+            <template v-slot:item.name="{ item }">
+                {{ item.name }}
+                <v-icon v-if="item.read_count > 0" small color="success" class="ml-1" title="Finished">mdi-check-circle</v-icon>
+                <v-icon v-else-if="item.opened_at" small class="ml-1" title="Started">mdi-clock-outline</v-icon>
+            </template>
 
             <!-- Total words -->
             <template v-slot:item.wordCount.total="{ item }">
@@ -223,6 +234,8 @@
                 bookWordCount: null,
                 chapters: [],
                 chaptersLoading: false,
+                page: 1,
+                itemsPerPage: this.loadStoredNumber('book-chapters-items-per-page', 25),
                 randomChapter: 0,
                 errorDialog: {
                     active: false,
@@ -323,9 +336,39 @@
 
                     this.chaptersLoading = false;
                     this.$nextTick(() => {
+                        // restore the page the user was on for this book
+                        this.page = this.loadStoredNumber('book-chapters-page-' + this.$props.bookId, 1);
                         axios.get('/chapters/word-counts/' + this.$props.bookId);
                     }) 
                 });
+            },
+            pageChanged(page) {
+                // the table resets its page while the list is empty, do not store that
+                if (this.chaptersLoading || !this.chapters.length) {
+                    return;
+                }
+
+                this.page = page;
+                this.storeNumber('book-chapters-page-' + this.$props.bookId, page);
+            },
+            itemsPerPageChanged(itemsPerPage) {
+                this.itemsPerPage = itemsPerPage;
+                this.storeNumber('book-chapters-items-per-page', itemsPerPage);
+            },
+            loadStoredNumber(key, defaultValue) {
+                try {
+                    const value = parseInt(localStorage.getItem(key), 10);
+                    return Number.isNaN(value) ? defaultValue : value;
+                } catch (error) {
+                    return defaultValue;
+                }
+            },
+            storeNumber(key, value) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (error) {
+                    // storage unavailable, the setting just will not persist
+                }
             },
             showStartReviewDialog(bookId, bookName, chapterId, chapterName) {
                 this.startReviewDialog.bookName = bookName;
