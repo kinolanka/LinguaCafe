@@ -141,7 +141,7 @@ class ChapterService {
             ->first();
 
         $chapters = Chapter
-            ::select(['id', 'name', 'read_count', 'word_count', 'unique_word_ids', 'processing_status'])
+            ::select(['id', 'name', 'read_count', 'word_count', 'unique_word_ids', 'processing_status', 'opened_at'])
             ->where('user_id', $userId)
             ->where('book_id', $book->id)
             ->orderBy('id')

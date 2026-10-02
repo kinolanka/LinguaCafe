@@ -26,7 +26,11 @@
                         </thead>
                         <tbody>
                             <tr v-for="(chapter, index) in chapters" :key="index">
-                                <td class="default-font">{{ chapter.name }}</td>
+                                <td class="default-font">
+                                    {{ chapter.name }}
+                                    <v-icon v-if="chapter.read_count > 0" small color="success" class="ml-1" title="Finished">mdi-check-circle</v-icon>
+                                    <v-icon v-else-if="chapter.opened_at || chapter.id == currentChapterId" small class="ml-1" title="Started">mdi-clock-outline</v-icon>
+                                </td>
                                 <td class="text-center">{{ chapter.wordCount.total }}</td>
                                 <td class="text-center">{{ chapter.wordCount.unique }}</td>
                                 <td class="text-center"><span class="rounded-pill highlighted">{{ chapter.wordCount.highlighted }}</span></td>
