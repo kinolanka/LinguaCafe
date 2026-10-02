@@ -67,6 +67,16 @@
                         @change="fieldSwitchChange"
                     ></v-checkbox>
 
+                    <!-- Example sentence switch -->
+                    <v-checkbox
+                        v-model="fields.exampleSentence"
+                        hide-details
+                        class="vocabulary-export-switch my-1"
+                        color="primary"
+                        label="Example sentence"
+                        @change="fieldSwitchChange"
+                    ></v-checkbox>
+
                     <!-- Stage switch -->
                     <v-checkbox
                         v-model="fields.stage"
@@ -118,6 +128,7 @@
                             <th v-if="fields.lemmaReading">Lemma reading</th>
                             <th v-if="fields.reading">Reading</th>
                             <th v-if="fields.translation">Translation</th>
+                            <th v-if="fields.exampleSentence">Example sentence</th>
                             <th v-if="fields.stage">Level</th>
                             <th v-if="fields.addedToSrs">Added to srs</th>
                             <th v-if="fields.readCount">Read count</th>
@@ -146,6 +157,7 @@
                             <td class="default-font" v-if="fields.lemmaReading">{{ sampleWord.base_word_reading }}</td>
                             <td class="default-font" v-if="fields.reading">{{ sampleWord.reading }}</td>
                             <td v-if="fields.translation">{{ sampleWord.translation }}</td>
+                            <td class="default-font" v-if="fields.exampleSentence">{{ sampleWord.example_sentence }}</td>
                             <td v-if="fields.stage">{{ sampleWord.stage }}</td>
                             <td v-if="fields.addedToSrs">{{ sampleWord.added_to_srs }}</td>
                             <td v-if="fields.readCount">{{ sampleWord.read_count }}</td>
@@ -207,6 +219,7 @@
                     lemmaReading: false,
                     reading: false,
                     translation: false,
+                    exampleSentence: false,
                     stage: false,
                     addedToSrs: false,
                     readCount: false,
@@ -225,6 +238,7 @@
                 this.fields.lemmaReading = this.fields.selectAll;
                 this.fields.reading = this.fields.selectAll;
                 this.fields.translation = this.fields.selectAll;
+                this.fields.exampleSentence = this.fields.selectAll;
                 this.fields.stage = this.fields.selectAll;
                 this.fields.addedToSrs = this.fields.selectAll;
                 this.fields.readCount = this.fields.selectAll;
@@ -238,6 +252,7 @@
                     this.fields.lemmaReading ||
                     this.fields.reading ||
                     this.fields.translation ||
+                    this.fields.exampleSentence ||
                     this.fields.stage ||
                     this.fields.addedToSrs ||
                     this.fields.readCount ||
@@ -277,6 +292,11 @@
                         export: this.fields.translation,
                         headerName: 'Translation',
                         searchObjectProperty: 'translation'
+                    },
+                    exampleSentence: {
+                        export: this.fields.exampleSentence,
+                        headerName: 'Example sentence',
+                        searchObjectProperty: 'example_sentence'
                     },
                     stage: {
                         export: this.fields.stage,

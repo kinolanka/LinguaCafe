@@ -6,6 +6,7 @@
             v-model="vocabularyEditDialog.active" 
             :item-id="vocabularyEditDialog.itemId" 
             :item-type="vocabularyEditDialog.itemType" 
+            :example-sentence="vocabularyEditDialog.exampleSentence"
             :language-spaces="languageSpaces"
             :language="$props.language"
             @saved="loadVocabularySearchPage"
@@ -278,7 +279,7 @@
                         <div class="new-word">New</div>
                     </td>
                     
-                    <td class="translation">{{ word.translation }}</td>
+                    <td class="translation">{{ word.translation }}<div :class="{'example-sentence': true, 'with-translation': word.translation}" v-if="word.example_sentence"><div class="example-sentence-title">Example sentence</div><div class="example-sentence-text default-font">{{ word.example_sentence }}</div></div></td>
                     <td class="actions">
                         <!-- Quick action: Mark as Learned -->
                         <v-btn
@@ -362,7 +363,8 @@
                 vocabularyEditDialog: {
                     active: false,
                     wordId: -1,
-                    phraseId: -1
+                    phraseId: -1,
+                    exampleSentence: ''
                 },
                 filters: {
                     bookIndex: -1,
@@ -541,6 +543,9 @@
                 this.vocabularyEditDialog.active = true;
                 this.vocabularyEditDialog.itemId = itemId;
                 this.vocabularyEditDialog.itemType = itemType;
+
+                const item = this.words.find((word) => word.id == itemId && word.type == itemType.toLowerCase());
+                this.vocabularyEditDialog.exampleSentence = item && item.example_sentence ? item.example_sentence : '';
             },
             setWordStatus(wordId, newStage, wordType) {
                 if (this.updatingWords.has(wordId)) return;
