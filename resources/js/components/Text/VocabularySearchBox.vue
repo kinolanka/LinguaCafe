@@ -24,7 +24,7 @@
                     v-for="(definition, definitionIndex) in apiSearchResults[apiDictionary.id].definitions"
                     :key="`api-search-result-${apiDictionary.id}-${definitionIndex}`"
                     class="search-result-definition rounded"
-                    @click="addDefinitionToInput(definition)"
+                    @click="addDefinitionToInput(definition, apiDictionary.name)"
                 >
                     {{ definition }} <v-icon small>mdi-plus</v-icon>
                 </div>
@@ -92,7 +92,7 @@
                         v-for="(definition, definitionIndex) in record.definitions" 
                         :key="definitionIndex" 
                         class="search-result-definition rounded"
-                        @click="addDefinitionToInput(definition)"
+                        @click="addDefinitionToInput(definition, searchResult.dictionary)"
                     >
                         {{ definition }} <v-icon small>mdi-plus</v-icon>
                     </div>
@@ -109,7 +109,7 @@
                         {{ searchResult.dictionary}}<div class="search-result-word default-font" :title="record.word"> {{ record.word }} </div>
                     </div>
                     
-                    <div class="search-result-definition rounded" v-for="(definition, definitionIndex) in record.definitions" :key="definitionIndex" @click="addDefinitionToInput(definition)">
+                    <div class="search-result-definition rounded" v-for="(definition, definitionIndex) in record.definitions" :key="definitionIndex" @click="addDefinitionToInput(definition, searchResult.dictionary)">
                         {{ definition }} <v-icon small>mdi-plus</v-icon>
                     </div>
                 
@@ -160,8 +160,8 @@
             this.makeSearchRequest();
         },
         methods: {
-            addDefinitionToInput(definition) {
-                this.$emit('addDefinitionToInput', definition);
+            addDefinitionToInput(definition, dictionaryName) {
+                this.$emit('addDefinitionToInput', definition, dictionaryName);
             },
             makeSearchRequest() {
                 this.searchResults = [];

@@ -293,6 +293,7 @@
 </template>
 
 <script>
+    import { appendDefinitionToTranslation } from './../../helper.js';
     import { mapState } from 'vuex';
     
     export default {
@@ -400,12 +401,8 @@
             deletePhrase() {
                 this.$emit('deletePhrase');
             },
-            addDefinitionToInput(definition) {
-                if (this.translationText.length && this.translationText[this.translationText.length - 1] !== ';') {
-                    this.translationText += ';';
-                }
-
-                this.translationText += definition;
+            addDefinitionToInput(definition, dictionaryName) {
+                this.translationText = appendDefinitionToTranslation(this.translationText, definition, dictionaryName);
                 this.inputChanged('translation');
             },
             inputChanged(inputName = '') {
