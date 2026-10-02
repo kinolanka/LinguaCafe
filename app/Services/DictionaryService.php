@@ -89,6 +89,16 @@ class DictionaryService {
         return boolval($apiDictionary);
     }
 
+    public function getEnabledApiDictionaries($language) {
+        return Dictionary::query()
+            ->select(['id', 'name', 'color'])
+            ->whereIn('type', ['my_memory', 'deepl', 'libre_translate', 'custom_api'])
+            ->where('enabled', true)
+            ->where('source_language', $language)
+            ->orderBy('id')
+            ->get();
+    }
+
     public function getDeeplCharacterLimit() {
         // retrieve api key from database
         $deeplApiKeySetting = Setting::where('name', 'deeplApiKey')->first();
@@ -188,7 +198,7 @@ class DictionaryService {
         return $result;
     }
     
-    public function searchApiDictionaries(string $sourceLanguage, string $term): array
+    public function searchApiDictionaries(string $sourceLanguage, string $term, ?int $dictionaryId = null): array
     {
         $definitions = [];
         $termHash = md5(mb_strtolower($term, 'UTF-8'));
@@ -196,6 +206,9 @@ class DictionaryService {
             ->whereIn('type', ['my_memory', 'deepl', 'libre_translate', 'custom_api'])
             ->where('enabled', true)
             ->where('source_language', $sourceLanguage)
+            ->when($dictionaryId !== null, function ($query) use ($dictionaryId) {
+                $query->where('id', $dictionaryId);
+            })
             ->get();
 
         $responseAdditionalInfo = [];

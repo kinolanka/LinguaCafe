@@ -145,6 +145,7 @@ Route::group(['middleware' => ['auth', 'auth.session', 'web']], function () {
 
     // dictionaries
     Route::post('/dictionaries/api/search', [App\Http\Controllers\DictionaryController::class, 'searchApiDictionaries']);
+    Route::get('/dictionaries/api/list', [App\Http\Controllers\DictionaryController::class, 'getEnabledApiDictionaries']);
     Route::get('/dictionaries/api/is-enabled', [App\Http\Controllers\DictionaryController::class, 'isAnyApiDictionaryEnabled']);
     Route::post('/dictionaries/search', [App\Http\Controllers\DictionaryController::class, 'searchDefinitions']);
     Route::post('/dictionaries/search-for-hover-vocabulary', [App\Http\Controllers\DictionaryController::class, 'searchDefinitionsForHoverVocabulary']);
