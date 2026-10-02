@@ -147,3 +147,9 @@
         }
     }
 }
+.text-block-group #vocab-box .expression.text-expression {
+    max-height: 160px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.4;
+}

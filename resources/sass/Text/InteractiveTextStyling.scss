@@ -152,6 +152,14 @@
 
 }
 
+// a selection longer than a phrase is handled as text, it has its own color
+.text-block-group.text-selection .word.highlighted,
+.text-block-group.text-selection .word.phrase.highlighted {
+    background-color: var(--v-info-base);
+    border-color: var(--v-info-base);
+    color: #ffffff;
+}
+
 // padding for spaceless languages (Chinese, Japanese, Thai...)
 .sample-text.spaceless-language .word, 
 .text-block-group.spaceless-language .word {

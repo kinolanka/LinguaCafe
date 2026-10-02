@@ -64,14 +64,15 @@
                     <v-textarea
                         v-if="type !== 'word'"
                         class="my-2 default-font"
-                        label="Phrase"
+                        :label="type == 'text' ? 'Text' : 'Phrase'"
                         filled
                         dense
                         no-resize
                         rounded
                         hide-details
-                        height="80"
-                        disabled
+                        :height="type == 'text' ? 120 : 80"
+                        :disabled="type !== 'text'"
+                        :readonly="type == 'text'"
                         :value="phraseText"
                         @keydown.stop=";"
                     ></v-textarea>
@@ -94,6 +95,7 @@
 
                     <!-- Translation -->
                     <v-textarea
+                        v-if="type !== 'text'"
                         :class="{'mt-2': $props.language !== 'japanese' && $props.language !== 'chinese'}"
                         placeholder="Translation"
                         filled
@@ -109,6 +111,7 @@
 
                     <!-- Search field -->
                     <v-text-field 
+                        v-if="type !== 'text'"
                         placeholder="Dictionary search"
                         class="dictionary-search-field mt-2 mb-3 default-font"
                         width="100%"
@@ -137,6 +140,7 @@
                         <vocabulary-search-box
                             v-if="type !== 'empty'"
                             :any-api-dictionary-enabled="$props.anyApiDictionaryEnabled"
+                            :api-only="type == 'text'"
                             :language="$props.language"
                             :searchTerm="searchField"
                             @addDefinitionToInput="addDefinitionToInput"
@@ -173,7 +177,7 @@
         <!-- Action buttons -->
         <v-card-actions class="d-flex flex-column">
             <!-- Stage buttons-->
-            <template v-if="type !== 'new-phrase'">
+            <template v-if="type !== 'new-phrase' && type !== 'text'">
                 <div id="vocabulary-bottom-sheet-stage-buttons" class="mb-1">
                     <v-btn :class="{'v-btn--active': stage == -7}" @click="setStage(-7)">7</v-btn>
                     <v-btn :class="{'v-btn--active': stage == -6}" @click="setStage(-6)">6</v-btn>

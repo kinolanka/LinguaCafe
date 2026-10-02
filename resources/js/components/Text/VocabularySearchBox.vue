@@ -135,10 +135,14 @@
         props: {
             language: String,
             anyApiDictionaryEnabled: Boolean,
+            apiOnly: Boolean,
             searchTerm: String
         },
         watch: { 
             searchTerm: function(newVal, oldVal) {
+                this.makeSearchRequest();
+            },
+            apiOnly: function() {
                 this.makeSearchRequest();
             }
         },
@@ -163,6 +167,13 @@
                 this.searchResults = [];
                 this.apiSearchResults = {};
                 if (this.$props.searchTerm == '') {
+                    return;
+                }
+
+                // imported dictionaries are not searched for long texts
+                if (this.$props.apiOnly) {
+                    this.dictionarySearchLoading = false;
+                    this.dictionarySearchResultsFound = true;
                     return;
                 }
 
