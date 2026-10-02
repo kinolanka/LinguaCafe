@@ -51,12 +51,31 @@
                 <template v-slot:item.cover_image="{ item }">
                     <img
                         v-if="item.cover_image"
-                        class="cover-image rounded-lg ma-2"
+                        class="cover-image book-open-link rounded-lg ma-2"
                         :src="'/images/book_images/' + item.cover_image"
+                        title="Open book"
+                        @click="openBook(item.id)"
                     ></img>
-                    <div v-else class="cover-image d-flex align-items-center mx-auto my-2">
+                    <div
+                        v-else
+                        class="cover-image book-open-link d-flex align-items-center mx-auto my-2"
+                        title="Open book"
+                        @click="openBook(item.id)"
+                    >
                         <NoBookCoverIcon class="px-1" />
                     </div>
+                </template>
+
+                <!-- Title and current chapter -->
+                <template v-slot:item.name="{ item }">
+                    <div class="book-open-link book-name" title="Open book" @click="openBook(item.id)">{{ item.name }}</div>
+                    <router-link
+                        v-if="item.currentChapter"
+                        class="current-chapter-link text-caption"
+                        :to="'/chapters/read/' + item.currentChapter.id"
+                    >
+                        Continue: {{ item.currentChapter.name }}
+                    </router-link>
                 </template>
                 
                 <!-- Length -->
@@ -99,7 +118,6 @@
         },
         methods: {
             openBook(bookId) {
-                console.log('books', this.$props.books);
                 this.$emit('open-book', bookId);
             },
             showEditBookDialog(book) {

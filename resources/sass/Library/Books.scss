@@ -23,6 +23,37 @@
     }
 }
 
+// clickable cover and title that open the book
+#books #book-list {
+    .book-open-link {
+        cursor: pointer;
+
+        &.book-name:hover {
+            color: var(--v-primary-base);
+        }
+    }
+
+    .current-chapter-link {
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .current-chapter-button {
+        max-width: calc(100% - 100px);
+        text-transform: none;
+
+        .v-btn__content {
+            display: block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+}
+
 // table layout
 #books #book-list.table-layout {
     .cover-image {

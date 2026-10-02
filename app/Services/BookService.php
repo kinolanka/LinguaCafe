@@ -22,9 +22,33 @@ class BookService {
             ->orderBy('updated_at', 'DESC')
             ->get();
 
-        // sets initial value used by vue in the library
+        // chapters of all books, used to find the chapter the user is currently reading
+        $chapters = Chapter
+            ::select(['id', 'name', 'book_id', 'read_count', 'processing_status'])
+            ->where('user_id', $userId)
+            ->whereIn('book_id', $books->pluck('id'))
+            ->orderBy('id')
+            ->get()
+            ->groupBy('book_id');
+
         foreach ($books as $book) {
+            // sets initial value used by vue in the library
             $book->wordCount = null;
+
+            // current chapter is the first processed chapter after the last finished one
+            $currentChapter = null;
+            foreach ($chapters->get($book->id, []) as $chapter) {
+                if ($chapter->read_count > 0) {
+                    $currentChapter = null;
+                } else if ($currentChapter === null && $chapter->processing_status === ChapterProcessingStatusEnum::PROCESSED->value) {
+                    $currentChapter = $chapter;
+                }
+            }
+
+            $book->currentChapter = $currentChapter === null ? null : [
+                'id' => $currentChapter->id,
+                'name' => $currentChapter->name,
+            ];
         }
 
         return $books;
