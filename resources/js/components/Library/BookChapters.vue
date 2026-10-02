@@ -203,6 +203,15 @@
                                 class="menu-button"
                                 tile
                                 color="white"
+                                @click="$router.push('/vocabulary/search/anytext/-999/' + bookId + '/' + item.id + '/any/both/words/1')"
+                            >
+                                Vocabulary
+                            </v-btn>
+                            <v-btn
+                                width="100"
+                                class="menu-button"
+                                tile
+                                color="white"
                                 @click="showDeleteChapterDialog(item)"
                             >
                                 Delete
