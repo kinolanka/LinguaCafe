@@ -55,9 +55,9 @@
 
                         <!-- Phrase -->
                         <template v-if="type !== 'word'">
-                            <div class="vocab-box-subheader mb-2 mt-0"><span class="rounded-pill py-1 px-3">Phrase</span></div>
+                            <div class="vocab-box-subheader mb-2 mt-0"><span class="rounded-pill py-1 px-3">{{ type == 'text' ? 'Text' : 'Phrase' }}</span></div>
                             <!-- Phrase text -->
-                            <div class="expression mb-2 default-font">
+                            <div :class="{'expression': true, 'mb-2': true, 'default-font': true, 'text-expression': type == 'text'}">
                                 <template v-for="(word, index) in phrase" v-if="word.word !== 'NEWLINE'">
                                     <span :class="{'mr-2': word.spaceAfter}">{{ word.word }}</span>
                                 </template>
@@ -71,7 +71,7 @@
                         </template>
 
                         <!-- Stage buttons-->
-                        <template v-if="type !== 'new-phrase'">
+                        <template v-if="type !== 'new-phrase' && type !== 'text'">
                             <div class="vocab-box-subheader d-flex mb-2 mt-4">
                                 <span class="rounded-pill py-1 px-3">Level</span>
                                 <v-spacer />
@@ -121,6 +121,7 @@
                       
                         <!-- Translation -->
                         <v-textarea
+                            v-if="type !== 'text'"
                             :class="{'mt-2': $props.language !== 'japanese' && $props.language !== 'chinese'}"
                             label="Translation"
                             filled
@@ -136,6 +137,7 @@
 
                         <!-- Search field -->
                         <v-text-field 
+                            v-if="type !== 'text'"
                             placeholder="Dictionary search"
                             class="dictionary-search-field mt-2 mb-3 default-font"
                             filled
@@ -152,6 +154,7 @@
                         <!-- Search box -->
                         <vocabulary-search-box
                             :any-api-dictionary-enabled="$props.anyApiDictionaryEnabled"
+                            :api-only="type == 'text'"
                             :language="$props.language"
                             :searchTerm="searchField"
                             @addDefinitionToInput="addDefinitionToInput"
@@ -280,7 +283,7 @@
         <div class="vocab-box-toolbar d-flex flex-column align-center flex-wrap pt-1 rounded-r-lg">
             <v-btn icon @click="close" title="Close"><v-icon>mdi-close</v-icon></v-btn>
             <v-btn icon @click="tab = 1;" title="Edit" v-if="tab == 0"><v-icon>mdi-pencil</v-icon></v-btn>
-            <v-btn icon @click="addSelectedWordToAnki" v-if="tab === 0 && type !== 'new-phrase'" title="Send to anki"><v-icon class="mr-1">mdi-cards</v-icon></v-btn>
+            <v-btn icon @click="addSelectedWordToAnki" v-if="tab === 0 && type !== 'new-phrase' && type !== 'text'" title="Send to anki"><v-icon class="mr-1">mdi-cards</v-icon></v-btn>
             <v-btn icon v-if="tab == 0 && $props.textToSpeechAvailable" title="Text to speech" @click="textToSpeech"><v-icon>mdi-bullhorn</v-icon></v-btn>
             <v-btn icon @click="tab = 2;" title="Show inflections" v-if="tab == 0 && inflections.length"><v-icon>mdi-list-box</v-icon></v-btn>
             <v-btn icon @click="tab = 0;" v-if="tab !== 0" title="Back"><v-icon>mdi-arrow-left</v-icon></v-btn>
@@ -289,6 +292,7 @@
 </template>
 
 <script>
+    import { appendDefinitionToTranslation } from './../../helper.js';
     import { mapState } from 'vuex';
 
     export default {
@@ -371,12 +375,8 @@
             updateVocabBoxTranslationList() {
                 this.translationList = this._translationText.split(';');
             },
-            addDefinitionToInput(definition) {
-                if (this.translationText.length && this.translationText[this.translationText.length - 1] !== ';') {
-                    this.translationText += ';';
-                }
-
-                this.translationText += definition;
+            addDefinitionToInput(definition, dictionaryName) {
+                this.translationText = appendDefinitionToTranslation(this.translationText, definition, dictionaryName);
                 this.inputChanged('translation');
             },
             inputChanged(inputName = '') {

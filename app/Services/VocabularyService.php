@@ -315,6 +315,71 @@ class VocabularyService {
         return $textBlock->getReaderData();
     }
 
+    /*
+        Adds the saved example sentence to each item of a
+        vocabulary search result as plain text.
+    */
+    private function addExampleSentencesToWords($userId, $language, $words, $languagesWithoutSpaces) {
+        $targetIds = [];
+        foreach ($words as $word) {
+            $targetIds[$word->id] = true;
+        }
+
+        $exampleSentences = [];
+        foreach (array_chunk(array_keys($targetIds), 1000) as $targetIdChunk) {
+            $records = ExampleSentence
+                ::select('target_type', 'target_id', 'words')
+                ->where('user_id', $userId)
+                ->whereIn('target_id', $targetIdChunk)
+                ->get();
+
+            foreach ($records as $record) {
+                $exampleSentences[$record->target_type . '-' . $record->target_id] = $record->words;
+            }
+        }
+
+        $languageSpaces = !in_array($language, $languagesWithoutSpaces, true);
+        foreach ($words as $word) {
+            $key = $word->type . '-' . $word->id;
+            $word->example_sentence = isset($exampleSentences[$key])
+                ? $this->getExampleSentenceText(json_decode($exampleSentences[$key]), $languageSpaces)
+                : '';
+        }
+    }
+
+    /*
+        Turns the tokens of an example sentence into plain text.
+    */
+    private function getExampleSentenceText($sentenceWords, $languageSpaces) {
+        if (!is_array($sentenceWords)) {
+            return '';
+        }
+
+        if (!$languageSpaces) {
+            return implode('', array_map(fn ($sentenceWord) => $sentenceWord->word, $sentenceWords));
+        }
+
+        $noSpaceBefore = ['.', ',', '?', '!', ';', ':', ')', ']', '”', '’', '…', '%'];
+        $noSpaceAfter = ['(', '[', '“', '‘'];
+
+        $text = '';
+        $spaceBeforeNext = false;
+        foreach ($sentenceWords as $sentenceWord) {
+            $token = $sentenceWord->word;
+            // contraction endings, like 's or n't
+            $contraction = preg_match('/^(n?[\'’]\p{L}+)$/u', $token) === 1;
+
+            if ($spaceBeforeNext && !$contraction && !in_array($token, $noSpaceBefore, true)) {
+                $text .= ' ';
+            }
+
+            $text .= $token;
+            $spaceBeforeNext = !in_array($token, $noSpaceAfter, true);
+        }
+
+        return $text;
+    }
+
     public function createOrUpdateExampleSentence($userId, $language, $targetType, $targetId, $exampleSentenceWords) {
         // Retrieve example sentence.
         $exampleSentence = ExampleSentence
@@ -378,6 +443,7 @@ class VocabularyService {
         $data = new \stdClass();
         $data->wordCount = $search->count();
         $data->words = $search->skip(($page - 1) * $this->itemsPerPage)->take($this->itemsPerPage)->get();
+        $this->addExampleSentencesToWords($userId, $language, $data->words, $languagesWithoutSpaces);
         $data->books = $books;
         $data->bookIndex = $bookIndex;
         $data->pageCount = ceil($data->wordCount / $this->itemsPerPage);
@@ -389,6 +455,7 @@ class VocabularyService {
 
     public function exportToCsv($userId, $language, $text, $bookId, $chapterId, $stage, $phrases, $orderBy, $translation, $fields, $languagesWithoutSpaces) {    
         $words = $this->buildSearchRequest($userId, $language, $text, $bookId, $chapterId, $stage, $phrases, $orderBy, $translation)->get();
+        $this->addExampleSentencesToWords($userId, $language, $words, $languagesWithoutSpaces);
 
         // create csv file
         $csv = Writer::createFromFileObject(new \SplTempFileObject());

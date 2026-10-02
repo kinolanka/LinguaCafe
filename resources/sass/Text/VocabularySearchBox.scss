@@ -52,6 +52,19 @@
             }
         }
         
+        .search-result-api-action {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            min-height: 30px;
+            padding-right: 8px;
+            font-size: 14px;
+
+            .v-btn {
+                text-transform: none;
+            }
+        }
+
         .search-result-definition {
             position: relative;
             display: block;

@@ -63,6 +63,27 @@ div.v-list.filter-popup {
             background-color: rgba(128, 128, 128, 0.1);
         }
 
+        // keeps the line breaks between the dictionary groups of a translation
+        td.translation {
+            white-space: pre-line;
+            text-align: left;
+            padding-top: 8px;
+            padding-bottom: 8px;
+
+            .example-sentence {
+                white-space: normal;
+
+                &.with-translation {
+                    margin-top: 1.5em;
+                }
+
+                .example-sentence-text {
+                    font-style: italic;
+                    opacity: 0.7;
+                }
+            }
+        }
+
         .word, .reading, .word-with-reading {
             width: 220px;
 

@@ -10,7 +10,7 @@
         >
             <div class="book-box">
                 <!-- Cover image -->
-                <div class="cover-image-box rounded-lg">
+                <div class="cover-image-box book-open-link rounded-lg" title="Open book" @click="openBook(book.id)">
                     <img
                         v-if="book.cover_image"
                         class="cover-image rounded-lg"
@@ -22,7 +22,7 @@
                 <!-- Title bar -->
                 <v-card-text class="book-information pa-0 pl-3">
                     <v-card-title class="book-title pa-3">
-                        <div class="book-title-text default-font">{{ book.name }}</div>
+                        <div class="book-title-text book-open-link book-name default-font" title="Open book" @click="openBook(book.id)">{{ book.name }}</div>
                         <v-spacer></v-spacer>
                         <v-menu content-class="book-menu" rounded offset-y bottom left nudge-top="-5">
                             <template v-slot:activator="{ on, attrs }">
@@ -69,6 +69,15 @@
                     </v-simple-table>
                 <v-card-actions>
                     <v-spacer />
+                    <v-btn
+                        v-if="book.currentChapter"
+                        rounded
+                        text
+                        class="current-chapter-button mr-2"
+                        :to="'/chapters/read/' + book.currentChapter.id"
+                    >
+                        Continue: {{ book.currentChapter.name }}
+                    </v-btn>
                     <v-btn rounded class="mx-0" color="primary" @click="openBook(book.id)" v-if="!book.chaptersVisible">Open</v-btn>
                     <v-btn rounded class="mx-0" color="primary"  v-if="book.chaptersVisible" @click="addChapter(book.id)"><v-icon> mdi-plus</v-icon>Add chapter</v-btn>
                 </v-card-actions>

@@ -3,6 +3,7 @@
         :class="{
             'text-block-group': true,
             'plain-text-mode': plainTextMode,
+            'text-selection': (ongoingSelection.length ? ongoingSelection.length : selection.length) > phraseLengthLimit,
             'w-100': true,
             'spaceless-language': ['chinese', 'japanese', 'thai'].includes($props.language)
         }"
@@ -212,7 +213,9 @@
                 phraseCurrentlySaving: false,
 
                 // text selection
+                // selections longer than a phrase are handled as text, which can only be translated
                 phraseLengthLimit: 14,
+                textLengthLimit: 300,
                 touchTimer: null,
                 touchStartWordIndex: -1,
                 selection: [],
@@ -551,8 +554,8 @@
                 }
 
                 if (wordIndex == this.ongoingSelection[0].wordIndex ||
-                    (wordIndex < this.ongoingSelection[0].wordIndex && this.ongoingSelection.length == this.phraseLengthLimit) ||
-                    (wordIndex > this.ongoingSelection[this.ongoingSelection.length - 1].wordIndex && this.ongoingSelection.length == this.phraseLengthLimit) ||
+                    (wordIndex < this.ongoingSelection[0].wordIndex && this.ongoingSelection.length == this.textLengthLimit) ||
+                    (wordIndex > this.ongoingSelection[this.ongoingSelection.length - 1].wordIndex && this.ongoingSelection.length == this.textLengthLimit) ||
                     wordIndex == this.ongoingSelection[this.ongoingSelection.length - 1].wordIndex) {
                         return;
                 }
@@ -566,12 +569,12 @@
                 }
 
 
-                if (firstWordIndex < this.ongoingSelectionStartingWordIndex - this.phraseLengthLimit + 1) {
-                    firstWordIndex = this.ongoingSelectionStartingWordIndex - this.phraseLengthLimit + 1;
+                if (firstWordIndex < this.ongoingSelectionStartingWordIndex - this.textLengthLimit + 1) {
+                    firstWordIndex = this.ongoingSelectionStartingWordIndex - this.textLengthLimit + 1;
                 }
 
-                if (lastWordIndex - firstWordIndex > this.phraseLengthLimit + 1) {
-                    lastWordIndex -= lastWordIndex - firstWordIndex - this.phraseLengthLimit + 1;
+                if (lastWordIndex - firstWordIndex > this.textLengthLimit + 1) {
+                    lastWordIndex -= lastWordIndex - firstWordIndex - this.textLengthLimit + 1;
                 }
 
                 this.ongoingSelection = [];
@@ -1231,13 +1234,16 @@
                         this.$store.commit('vocabularyBox/setSearchField', uniqueWord.word);
                     }
                 } else {
+                    // a selection longer than a phrase cannot be saved, it is only translated
+                    var newSelectionType = this.selection.length > this.phraseLengthLimit ? 'text' : 'new-phrase';
+
                     if (this.selectedPhrase !== -1) {
                         this.$store.commit('vocabularyBox/setType', 'phrase');
                         this.$store.commit('vocabularyBox/setReading', this.phrases[this.selectedPhrase].reading);
                         this.$store.commit('vocabularyBox/setTranslationText', this.phrases[this.selectedPhrase].translation);
                         this.$store.commit('vocabularyBox/setStage', this.phrases[this.selectedPhrase].stage);
                     } else {
-                        this.$store.commit('vocabularyBox/setType', 'new-phrase');
+                        this.$store.commit('vocabularyBox/setType', newSelectionType);
                     }
 
                     for (let i = 0; i < this.selection.length; i++) {
@@ -1246,7 +1252,7 @@
                         }
 
                         if (this.selection.length > 1) {
-                            this.$store.commit('vocabularyBox/setType', this.selectedPhrase === -1 ? 'new-phrase' : 'phrase');
+                            this.$store.commit('vocabularyBox/setType', this.selectedPhrase === -1 ? newSelectionType : 'phrase');
                             this.$store.commit('vocabularyBox/pushWordToPhrase', this.selection[i]);
                         }
 

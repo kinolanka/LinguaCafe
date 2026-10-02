@@ -158,6 +158,12 @@
                     @keyup="changed"
                 ></v-textarea>
 
+                <!-- Example sentence -->
+                <div id="vocabulary-edit-example-sentence" class="mb-4" style="width: 100%;" v-if="$props.exampleSentence">
+                    <label class="font-weight-bold">Example sentence</label>
+                    <div class="default-font">{{ $props.exampleSentence }}</div>
+                </div>
+
                 <!-- Stage -->
                 <div id="vocabulary-edit-stage-buttons">
                     <v-btn :value="-7" :class="{'v-btn--active': item.stage == -7}" @click="setStage(-7)">7</v-btn>
@@ -215,6 +221,10 @@
             },
             language: String,
             languageSpaces: Boolean,
+            exampleSentence: {
+                type: String,
+                default: ''
+            },
         },
         emits: ['input'],
         data: function() {

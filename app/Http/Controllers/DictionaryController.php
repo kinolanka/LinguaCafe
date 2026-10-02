@@ -115,6 +115,18 @@ class DictionaryController extends Controller
         return response()->json($response, 200);
     }
 
+    public function getEnabledApiDictionaries() {
+        $language = Auth::user()->selected_language;
+
+        try {
+            $dictionaries = $this->dictionaryService->getEnabledApiDictionaries($language);
+        } catch (\Exception $e) {
+            abort(500, $e->getMessage());
+        }
+
+        return response()->json($dictionaries, 200);
+    }
+
     public function getDeeplCharacterLimit() {
         try {
             $deeplLimit = $this->dictionaryService->getDeeplCharacterLimit();   
@@ -157,9 +169,10 @@ class DictionaryController extends Controller
     public function searchApiDictionaries(SearchApiRequest $request) {
         $language = $request->post('language');
         $term = $request->post('term');
+        $dictionaryId = $request->post('dictionaryId');
 
         try {
-            $definitions = $this->dictionaryService->searchApiDictionaries($language, $term);
+            $definitions = $this->dictionaryService->searchApiDictionaries($language, $term, $dictionaryId);
         } catch (\Exception $e) {
             abort(500, $e->getMessage());
         }

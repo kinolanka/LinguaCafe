@@ -653,37 +653,63 @@ class DictionaryImportService {
                 continue;
             }
 
-            // extract word
-            $word = explode('|', $data[0])[0];
-            $word = mb_strtolower($word, 'UTF-8');
+            // extract word and its inflected forms, so inflected words can be found too
+            $forms = explode('|', mb_strtolower($data[0], 'UTF-8'));
+            $forms = array_unique(array_filter($forms, 'strlen'));
 
-            // extract definitions from <li> tags
+            // extract the first few definitions of each part of speech section
             $filteredDefinitions = [];
-            $definitions = mb_strtolower($data[1], 'UTF-8');
-            $definitions = explode('<li>', $definitions);
-            
-            foreach ($definitions as $definitionCounter => $definition) {
-                if (!$definitionCounter) {
-                    continue;
-                }
+            $definitionsLength = 0;
+            preg_match_all('/<i>([^<]*)<\/i><br><ol>(.*?)<\/ol>/u', $data[1], $sections, PREG_SET_ORDER);
 
-                $filteredDefinitions[] = explode('</li>', $definition)[0];
+            foreach ($sections as $section) {
+                preg_match_all('/<li>(.*?)<\/li>/u', $section[2], $sectionDefinitions);
+
+                foreach (array_slice($sectionDefinitions[1], 0, 3) as $definitionCounter => $definition) {
+                    // semicolons separate definitions in the database
+                    $definition = str_replace(';', ',', trim(strip_tags($definition)));
+                    if (!strlen($definition)) {
+                        continue;
+                    }
+
+                    // mark the part of speech on the first definition of the section
+                    if (!$definitionCounter) {
+                        $definition = $section[1] . ': ' . $definition;
+                    }
+
+                    // keep long entries by dropping the definitions that do not fit
+                    $definitionsLength += mb_strlen($definition, 'UTF-8') + 1;
+                    if ($definitionsLength > 1000) {
+                        break 2;
+                    }
+
+                    $filteredDefinitions[] = $definition;
+                }
+            }
+
+            // skip words without definitions
+            if (!count($filteredDefinitions)) {
+                continue;
             }
 
             // join filtered definitions
             $filteredDefinitions = implode(';', $filteredDefinitions);
 
-            // skip too long definitions
-            if (strlen($filteredDefinitions) > 254) {
-                continue;
+            $rows = [];
+            foreach ($forms as $form) {
+                if (mb_strlen($form, 'UTF-8') > 256) {
+                    continue;
+                }
+
+                $rows[] = [
+                    'word' => $form,
+                    'definitions' => $filteredDefinitions,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
+                ];
             }
 
-            DB::table($databaseTableName)->insert([
-                'word' => $word,
-                'definitions' => $filteredDefinitions,
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
+            DB::table($databaseTableName)->insert($rows);
 
             if ($index % 1000 == 0) {
                 DB::commit();

@@ -7,6 +7,7 @@
             'word-selected': type === 'word',
             'phrase-selected': type === 'phrase',
             'new-phrase-selected': type === 'new-phrase',
+            'text-selected': type === 'text',
             'pa-4': true,
             'rounded-l-0': true,
             'rounded-r-lg': true
@@ -54,7 +55,7 @@
 
                 <!-- Send to Anki button -->
                 <v-btn 
-                    v-if="tab == 0 && type !== 'new-phrase'"
+                    v-if="tab == 0 && type !== 'new-phrase' && type !== 'text'"
                     icon
                     title="Send to anki"
                     @mouseup.stop="addSelectedWordToAnki"
@@ -145,14 +146,15 @@
                 <v-textarea
                     v-if="type !== 'word'"
                     class="default-font my-2"
-                    label="Phrase"
+                    :label="type == 'text' ? 'Text' : 'Phrase'"
                     filled
                     dense
                     no-resize
                     rounded
                     hide-details
-                    height="80"
-                    disabled
+                    :height="type == 'text' ? 200 : 80"
+                    :disabled="type !== 'text'"
+                    :readonly="type == 'text'"
                     :value="phraseText"
                     @keydown.stop=";"
                 ></v-textarea>
@@ -174,7 +176,7 @@
                 ></v-textarea>
                 
                 <!-- Stage buttons-->
-                <template v-if="type !== 'new-phrase'">
+                <template v-if="type !== 'new-phrase' && type !== 'text'">
                     <div id="vocab-box-stage-buttons" class="mb-2">
                         <v-btn :class="{'v-btn--active': stage == -7}" @click="setStage(-7)">7</v-btn>
                         <v-btn :class="{'v-btn--active': stage == -6}" @click="setStage(-6)">6</v-btn>
@@ -200,10 +202,11 @@
                 </template>
                 
                 <!-- Translation -->
-                <div class="vocab-box-subheader d-flex">
+                <div class="vocab-box-subheader d-flex" v-if="type !== 'text'">
                     Translation
                 </div>
                 <v-textarea
+                    v-if="type !== 'text'"
                     class="mb-2 mt-1"
                     placeholder="Translation"
                     title="Translation"
@@ -220,6 +223,7 @@
 
                 <!-- Search field -->
                 <v-text-field 
+                    v-if="type !== 'text'"
                     placeholder="Dictionary search"
                     class="dictionary-search-field default-font mt-2 mb-3"
                     width="100%"
@@ -237,6 +241,7 @@
                 <vocabulary-search-box
                     v-if="type !== 'empty'"
                     :any-api-dictionary-enabled="$props.anyApiDictionaryEnabled"
+                    :api-only="type == 'text'"
                     :language="$props.language"
                     :searchTerm="searchField"
                     @addDefinitionToInput="addDefinitionToInput"
@@ -288,6 +293,7 @@
 </template>
 
 <script>
+    import { appendDefinitionToTranslation } from './../../helper.js';
     import { mapState } from 'vuex';
     
     export default {
@@ -395,12 +401,8 @@
             deletePhrase() {
                 this.$emit('deletePhrase');
             },
-            addDefinitionToInput(definition) {
-                if (this.translationText.length && this.translationText[this.translationText.length - 1] !== ';') {
-                    this.translationText += ';';
-                }
-
-                this.translationText += definition;
+            addDefinitionToInput(definition, dictionaryName) {
+                this.translationText = appendDefinitionToTranslation(this.translationText, definition, dictionaryName);
                 this.inputChanged('translation');
             },
             inputChanged(inputName = '') {
