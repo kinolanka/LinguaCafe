@@ -110,6 +110,16 @@
                         </tbody>
                     </v-simple-table>
                     <v-card-actions>
+                        <v-btn
+                            v-if="book.currentChapter"
+                            rounded
+                            text
+                            class="current-chapter-button"
+                            style="max-width: calc(100% - 170px);"
+                            :to="'/chapters/read/' + book.currentChapter.id"
+                        >
+                            Continue: {{ book.currentChapter.name }}
+                        </v-btn>
                         <v-spacer />
                         <v-btn rounded class="mx-0" color="primary" @click="addChapter"><v-icon> mdi-plus</v-icon>Add chapter</v-btn>
                     </v-card-actions>
@@ -122,6 +132,19 @@
             <v-card-title class="book-title pa-3">
                 Chapters
                 <v-spacer />
+                <v-btn-toggle
+                    :value="hideReadChapters ? 0 : undefined"
+                    rounded
+                    dense
+                    class="mr-2"
+                    @change="hideReadChaptersChanged"
+                    title="Hide finished chapters"
+                >
+                    <v-btn small class="px-2" min-width="40px">
+                        <v-icon small left>mdi-eye-off</v-icon>
+                        Hide read
+                    </v-btn>
+                </v-btn-toggle>
                 <v-btn-toggle
                     v-model="wordCountDisplayType"
                     mandatory
@@ -146,6 +169,7 @@
                     ref="bookChapters"
                     :book-id="book.id"
                     :word-count-display-type="wordCountDisplayType"
+                    :hide-read="hideReadChapters"
                     @word-count-changed="wordCountChanged"
                 ></book-chapters>
             </v-card-text>
@@ -161,6 +185,7 @@
         data: function() {
             return {
                 wordCountDisplayType: DefaultLocalStorageManager.loadSetting('word-count-display-type') || 0,
+                hideReadChapters: DefaultLocalStorageManager.loadSetting('hide-read-chapters') || false,
                 editBookChapterDialog: {
                     active: false,
                     bookId: -1,
@@ -192,6 +217,10 @@
             },
             saveWordCountDisplayType() {
                 DefaultLocalStorageManager.saveSetting('word-count-display-type', this.wordCountDisplayType);
+            },
+            hideReadChaptersChanged(value) {
+                this.hideReadChapters = value === 0;
+                DefaultLocalStorageManager.saveSetting('hide-read-chapters', this.hideReadChapters);
             },
             addChapter() {
                 this.editBookChapterDialog.active = true;

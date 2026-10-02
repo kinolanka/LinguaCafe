@@ -49,12 +49,12 @@
                 { text: 'New', value: 'wordCount.new', align: 'center' },
                 { text: 'Actions', value: 'actions', sortable: false },
             ]"
-            :items="chapters"
+            :items="visibleChapters"
             :loading="chaptersLoading"
             :page="page"
             :items-per-page="itemsPerPage"
             :footer-props="{ 'items-per-page-options': [25, 50, 100, -1] }"
-            :hide-default-footer="chapters.length <= 25"
+            :hide-default-footer="visibleChapters.length <= 25"
             @update:page="pageChanged"
             @update:items-per-page="itemsPerPageChanged"
         >
@@ -260,6 +260,27 @@
         props: {
             bookId: Number,
             wordCountDisplayType: Number,
+            hideRead: Boolean,
+        },
+        computed: {
+            visibleChapters() {
+                if (!this.$props.hideRead) {
+                    return this.chapters;
+                }
+
+                return this.chapters.filter((chapter) => !(chapter.read_count > 0));
+            },
+            // the page is remembered separately for the full list and the unread only list
+            pageStorageKey() {
+                return 'book-chapters-page-' + this.$props.bookId + (this.$props.hideRead ? '-unread' : '');
+            },
+        },
+        watch: {
+            hideRead() {
+                this.$nextTick(() => {
+                    this.page = this.loadStoredNumber(this.pageStorageKey, 1);
+                });
+            },
         },
         mounted() {
             this.loadChapters();
@@ -337,7 +358,7 @@
                     this.chaptersLoading = false;
                     this.$nextTick(() => {
                         // restore the page the user was on for this book
-                        this.page = this.loadStoredNumber('book-chapters-page-' + this.$props.bookId, 1);
+                        this.page = this.loadStoredNumber(this.pageStorageKey, 1);
                         axios.get('/chapters/word-counts/' + this.$props.bookId);
                     }) 
                 });
@@ -349,7 +370,7 @@
                 }
 
                 this.page = page;
-                this.storeNumber('book-chapters-page-' + this.$props.bookId, page);
+                this.storeNumber(this.pageStorageKey, page);
             },
             itemsPerPageChanged(itemsPerPage) {
                 this.itemsPerPage = itemsPerPage;

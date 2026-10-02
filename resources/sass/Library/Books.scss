@@ -23,8 +23,8 @@
     }
 }
 
-// clickable cover and title that open the book
-#books #book-list {
+// clickable cover and title that open the book, current chapter links
+#books {
     .book-open-link {
         cursor: pointer;
 
